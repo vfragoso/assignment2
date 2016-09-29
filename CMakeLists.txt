@@ -112,8 +112,7 @@ TARGET_LINK_LIBRARIES(draw_triangle
   ${GLFW_LIBRARIES}
   ${GFLAGS_LIBRARIES}
   ${GLOG_LIBRARIES}
-  ${blas_LIBRARIES}
-  ${SUITESPARSE_LIBRARIES})
+  ${blas_LIBRARIES})
 
 ADD_LIBRARY(test_main test/test_main.cc)
 # TODO(vfragoso): See if you can trim the libraries.
@@ -126,7 +125,9 @@ MACRO (GTEST NAME)
   ADD_EXECUTABLE(${NAME} ${NAME}_tests.cc assignment.cc shader_program.cc)
   TARGET_LINK_LIBRARIES(${NAME} test_main gtest ${ARGN}
     ${GFLAGS_LIBRARIES}
-    ${GLOG_LIBRARIES})
+    ${GLOG_LIBRARIES}
+    ${OPENGL_LIBRARIES}
+    ${GLEW_LIBRARIES})
 
   ADD_TEST(NAME ${NAME}
     COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${NAME})
