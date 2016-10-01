@@ -40,7 +40,8 @@
 
 // System specific headers.
 #include "assignment.h"
-#include "Eigen/Dense"
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
 #include "glog/logging.h"
 #include "gtest/gtest.h"
 #include "shader_program.h"
