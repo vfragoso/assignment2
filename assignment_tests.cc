@@ -40,10 +40,17 @@
 
 // System specific headers.
 #include "assignment.h"
-#include "Eigen/Core"
+#include "Eigen/Dense"
 #include "glog/logging.h"
 #include "gtest/gtest.h"
 #include "shader_program.h"
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+// The header of GLFW. This library is a C-based and light-weight library for
+// creating windows for OpenGL rendering.
+// See http://www.glfw.org/ for more information.
+#include <GLFW/glfw3.h>
 
 // These are unit tests using google gtest library. A binary will be created
 // automatically to run the tests below.
@@ -77,6 +84,52 @@ const std::string fragment_shader_src =
     "void main() {\n"
     "color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
     "}\n";
+
+struct ShaderProgramTest : public ::testing::Test {
+  static void SetUpTestCase() {
+    // Initialize the GLFW library.
+    if (!glfwInit()) {
+      LOG(FATAL) << "GLFW did not initialize correctly";
+    }
+    // Sets properties of windows and have to be set before creation.
+    // GLFW_CONTEXT_VERSION_{MAJOR|MINOR} sets the minimum OpenGL API version
+    // that this program will use.
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    // Sets the OpenGL profile.
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    // Sets the property of resizability of a window.
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+    // Create a window and its OpenGL context.
+    const std::string window_name = "Hello Triangle";
+    window = glfwCreateWindow(480,
+                              640,
+                              window_name.c_str(),
+                              nullptr,
+                              nullptr);
+    glfwMakeContextCurrent(window);
+    // Initialize GLEW.
+    glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK) {
+      glfwTerminate();
+      LOG(FATAL) << "Glew did not initialize properly!";
+    }
+  }
+
+  static void TearDownTestCase() {
+    // Destroy window.
+    glfwDestroyWindow(window);
+    // Tear down GLFW library.
+    glfwTerminate();
+  }
+
+  static GLFWwindow* window;
+};
+
+GLFWwindow* ShaderProgramTest::window = nullptr;
+
 }  // namespace
 
 TEST(LinearAlgebra, Add3dPoints) {
@@ -130,7 +183,7 @@ TEST(LinearAlgebra, ComputeCrossProduct) {
   EXPECT_NEAR(1.0f, ComputeDotProduct(z, result), 1e-3);
 }
 
-TEST(ShaderProgram, CreateProgramFromValidShaderSources) {
+TEST_F(ShaderProgramTest, CreateProgramFromValidShaderSources) {
   ShaderProgram shader_program;
   EXPECT_TRUE(shader_program.LoadVertexShaderFromString(vertex_shader_src));
   EXPECT_TRUE(shader_program.LoadFragmentShaderFromString(fragment_shader_src));
@@ -139,7 +192,7 @@ TEST(ShaderProgram, CreateProgramFromValidShaderSources) {
   EXPECT_GT(shader_program.shader_program_id(), 0);
 }
 
-TEST(ShaderProgram, CreateProgramFromInvalidShaderSources) {
+TEST_F(ShaderProgramTest, CreateProgramFromInvalidShaderSources) {
   ShaderProgram shader_program;
   const std::string bad_vertex_shader = vertex_shader_src + "asdasdjqw;rjdekl";
   const std::string bad_fragment_shader = vertex_shader_src + "asdasdjqw;jdekl";
