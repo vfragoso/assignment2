@@ -202,7 +202,7 @@ TEST_F(ShaderProgramTest, CreateProgramFromInvalidShaderSources) {
   std::string error_info_log;
   EXPECT_FALSE(shader_program.Create(&error_info_log));
   EXPECT_GT(error_info_log.size(), 0);
-  EXPECT_GT(shader_program.shader_program_id(), 0);
+  EXPECT_EQ(shader_program.shader_program_id(), 0);
 }
 
 }  // namespace wvu

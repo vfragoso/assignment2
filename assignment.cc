@@ -32,6 +32,7 @@
 #include "assignment.h"
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 namespace wvu {
 // Adds two 3d points and returns the resultant added point.
