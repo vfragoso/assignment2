@@ -101,8 +101,8 @@ class ShaderProgram {
   // Destructor. Invoked automatically once the instance goes out of scope.
   virtual ~ShaderProgram() {
     if (created_) {
-      // TASK: Delete shader program.
-      // HINT: Use glDeleteProgram.
+      // Once the shader program is not needed, we tell OpenGL to delete it.
+      glDeleteProgram(shader_program_id_);
     }
   }
 
@@ -157,9 +157,9 @@ class ShaderProgram {
   // Returns true if the function successfully activates the shader program.
   bool Use() const {
     if (created_) {
-      // TASK: Implement this function. The idea is to modify OpenGL's context
-      // to inform that we will use this shader program.
-      return false;
+      // We set the shader program as active.
+      glUseProgram(shader_program_id_);
+      return true;
     }
     return false;
   }

@@ -31,6 +31,7 @@
 
 #include "assignment.h"
 
+#include <math.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
@@ -38,43 +39,44 @@ namespace wvu {
 // Adds two 3d points and returns the resultant added point.
 Eigen::Vector3f Add3dPoints(const Eigen::Vector3f& x,
                             const Eigen::Vector3f& y) {
-  return Eigen::Vector3f::Random();
+  return x + y;
 }
 
 // Adds two 4d points and returns the resultant added point.
 Eigen::Vector4f Add4dPoints(const Eigen::Vector4f& x,
                             const Eigen::Vector4f& y) {
-  return Eigen::Vector4f::Random();
+  return x + y;
 }
 
 // Multiply two 4x4 matrices.
 Eigen::Matrix4f Multiply4x4Matrices(const Eigen::Matrix4f& x,
                                     const Eigen::Matrix4f& y) {
-  return Eigen::Matrix4f::Random();
+  return x * y;
 }
 
 // Multiply matrix-vector. Returns the multiplication.
 Eigen::Vector4f MultiplyVectorAndMatrix(const Eigen::Matrix4f& x,
                                         const Eigen::Vector4f& y) {
-  return Eigen::Vector4f::Random();
+  return x * y;
 }
 
 // Calculate the dot product of two vectors.
 float ComputeDotProduct(const Eigen::Vector3f& x,
                         const Eigen::Vector3f& y) {
-  return 0.0f;
+  return x.dot(y);
 }
 
 // Calculates the angle between two vectors in radians.
 float CalculateAngleBetweenTwoVectors(const Eigen::Vector3f& x,
                                       const Eigen::Vector3f& y) {
-  return 0.0f;
+  const float cos_theta = x.normalized().dot(y.normalized());
+  return acos(cos_theta);
 }
 
 // Calculates the cross product of two vectors.
 Eigen::Vector3f ComputeCrossProduct(const Eigen::Vector3f& x,
                                     const Eigen::Vector3f& y) {
-  return Eigen::Vector3f::Random();
+  return x.cross(y);
 }
 
 }  // namespace

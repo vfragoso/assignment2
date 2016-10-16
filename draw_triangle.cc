@@ -207,8 +207,7 @@ void RenderScene(const wvu::ShaderProgram& shader_program,
   // Clear the buffer.
   ClearTheFrameBuffer();
   // Let OpenGL know that we want to use our shader program.
-  // TODO(vfragoso): Implement me!
-
+  shader_program.Use();
   // Draw the triangle.
   // Let OpenGL know what vertex array object we will use.
   glBindVertexArray(vertex_array_object_id);
@@ -264,6 +263,12 @@ int main(int argc, char** argv) {
 
   // Compile shaders and create shader program.
   wvu::ShaderProgram shader_program;
+  shader_program.LoadVertexShaderFromString(vertex_shader_src);
+  shader_program.LoadFragmentShaderFromString(fragment_shader_src);
+  std::string error_info_log;
+  if (!shader_program.Create(&error_info_log)) {
+    std::cout << "ERROR: " << error_info_log << "\n";
+  }
   // TODO(vfragoso): Implement me!
   if (!shader_program.shader_program_id()) {
     std::cerr << "ERROR: Could not create a shader program.\n";

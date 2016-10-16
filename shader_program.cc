@@ -58,8 +58,43 @@ enum ShaderType {
 GLuint CompileShader(const std::string& shader_src,
                      const ShaderType shader_type,
                      std::string* info_log) {
-  // TASK: Implement me!
-  return 0;
+  // Create an id for shader using OpenGL glCreateShader().
+  GLuint shader_id = 0;
+  switch (shader_type) {
+    case VERTEX:
+      shader_id = glCreateShader(GL_VERTEX_SHADER);
+      break;
+    case FRAGMENT:
+      shader_id = glCreateShader(GL_FRAGMENT_SHADER);
+      break;
+  }
+  // Retrieving the pointer to the C string wrapped by shader_src.
+  // This is to comply with the signature of glShaderSource() function.
+  const char* shader_src_ptr = shader_src.c_str();
+  // Associates the vertex shader id with the vertex shader source pointed
+  // by vertex_shader_src_ptr.
+  glShaderSource(shader_id, 1, &shader_src_ptr, nullptr);
+  // Compile the shader.
+  glCompileShader(shader_id);
+  // Verify if the compilation was successful.
+  GLint success = 0;
+  // Retrieve if the compilation was successful. The function returns a non-zero
+  // value in success if successful. Otherwise, it does not modify success.
+  glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
+  // If it is successful, success becomes a non-zero number. Also, if the user
+  // provided a valid C++ string to store the error log info then we extract
+  // the error log info from OpenGL.
+  if (!success) {
+    if (info_log) {
+      // Allocate the number of chars in the string.
+      info_log->resize(kNumCharsInfoLog);
+      // Retrieve the error ingo log.
+      glGetShaderInfoLog(shader_id, kNumCharsInfoLog, nullptr,
+                         &info_log->front());
+    }
+    return 0;
+  }
+  return shader_id;
 }
 
 // Creates a shader program. This function requires the ids of the vertex and
@@ -69,15 +104,39 @@ GLuint CompileShader(const std::string& shader_src,
 GLuint CreateShaderProgram(const GLuint vertex_shader,
                            const GLuint fragment_shader,
                            std::string* info_log) {
-  // TASK: Implement me!
-  return 0;
+  // Create a program id.
+  const GLuint shader_program = glCreateProgram();
+  // Attach to the program the vertex shader.
+  glAttachShader(shader_program, vertex_shader);
+  // Attach to the program the fragment shader.
+  glAttachShader(shader_program, fragment_shader);
+  // Link the both shaders to get a shader program.
+  glLinkProgram(shader_program);
+  // Check if the operation was successful.
+  GLint success = 0;
+  // Get the status of the linkage procedure. The function returns a non-zero
+  // value in success if successful. Otherwise, it does not modify success.
+  glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
+  if (!success) {
+    if (info_log) {
+      // Allocate the number of chars in the string.
+      info_log->resize(kNumCharsInfoLog);
+      // Retrieve the error ingo log.
+      glGetProgramInfoLog(shader_program, kNumCharsInfoLog, nullptr,
+                          &info_log->front());
+    }
+    return 0;
+  }
+  return shader_program;
 }
 
 // Releases the resources allocated for compilation of shaders.
 // Clear the shader sources strings.
 void ReleaseShaderResources(const GLuint vertex_shader,
-                            const GLuint fragmnet_shader) {
-  // TASK: Implement me!
+                            const GLuint fragment_shader) {
+  // Delete shaders and set them to 0.
+  glDeleteShader(vertex_shader);
+  glDeleteShader(fragment_shader);
 }
 
 // Loads a shader source from a file. The function receives the filepath
@@ -131,7 +190,27 @@ bool ShaderProgram::Create(std::string* error_info_log) {
   // method will report true. No need to build again. If different shader
   // sources are used, then a different instance should be called.
   if (created_) return true;
-  return false;
+  std::string info_log;
+  if (!BuildVertexShader(&info_log)) {
+    if (error_info_log) {
+      *error_info_log = info_log;
+    }
+    return false;
+  }
+  if (!BuildFragmentShader(&info_log)) {
+    if (error_info_log) {
+      *error_info_log = info_log;
+    }
+    return false;
+  }
+  if (!LinkProgram(&info_log)) {
+    if (error_info_log) {
+      *error_info_log = info_log;
+    }
+    return false;
+  }
+  created_ = true;
+  return true;
 }
 
 bool ShaderProgram::BuildVertexShader(std::string* info_log) {
